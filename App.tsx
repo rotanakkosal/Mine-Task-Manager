@@ -8,7 +8,7 @@ import { TaskFilters, FilterMode, SortMethod } from './components/TaskFilters.ts
 import { AIAssistant } from './components/AIAssistant.tsx';
 import { ImportExport } from './components/ImportExport.tsx';
 
-const STORAGE_KEY = 'student_task_manager_v1';
+const STORAGE_KEY = 'mine_task_manager_v1';
 
 const App: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -19,10 +19,8 @@ const App: React.FC = () => {
   const [sortMethod, setSortMethod] = useState<SortMethod>('priority');
   const [activeAlerts, setActiveAlerts] = useState<string[]>([]);
   
-  // Selection state
   const [selectedTaskIds, setSelectedTaskIds] = useState<Set<string>>(new Set());
 
-  // Load initial state
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
@@ -52,14 +50,12 @@ const App: React.FC = () => {
     }
   }, []);
 
-  // Save state whenever tasks change
   useEffect(() => {
     if (tasks.length > 0 || localStorage.getItem(STORAGE_KEY)) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
     }
   }, [tasks]);
 
-  // Reminder Logic
   useEffect(() => {
     const checkReminders = () => {
       const now = Date.now();
@@ -249,33 +245,19 @@ const App: React.FC = () => {
   const isAllVisibleSelected = visibleIds.length > 0 && visibleIds.every(id => selectedTaskIds.has(id));
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-12 md:py-20 relative">
-      {/* Contextual batch bar - Lightened */}
+    <div className="max-w-3xl mx-auto px-4 py-8 md:py-16 relative">
+      {/* Selection floating bar */}
       {selectedTaskIds.size > 0 && (
-        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-40 w-[90%] max-w-lg animate-in slide-in-from-bottom duration-300">
-          <div className="bg-white text-slate-800 p-4 rounded-2xl shadow-2xl flex items-center justify-between border border-slate-200">
-            <div className="flex items-center gap-4">
-              <span className="bg-blue-500 text-[10px] font-semibold px-2 py-1 rounded-full uppercase tracking-wider text-white">
-                {selectedTaskIds.size} Selected
-              </span>
-              <button 
-                onClick={() => setSelectedTaskIds(new Set())}
-                className="text-xs font-medium text-slate-500 hover:text-slate-800 transition-colors"
-              >
-                Clear
-              </button>
-            </div>
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-[94%] max-w-md animate-in slide-in-from-bottom duration-300">
+          <div className="bg-white border border-slate-200 text-slate-800 p-3.5 rounded-2xl shadow-2xl flex items-center justify-between">
+            <span className="bg-blue-600 text-[10px] font-semibold px-2.5 py-1 rounded-full uppercase text-white tracking-wider">
+              {selectedTaskIds.size} Selected
+            </span>
             <div className="flex gap-2">
-              <button
-                onClick={batchDelete}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-all text-xs font-semibold border border-red-100"
-              >
+              <button onClick={batchDelete} className="px-3.5 py-2 rounded-xl bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-all text-xs font-semibold border border-red-100">
                 Delete
               </button>
-              <button
-                onClick={batchComplete}
-                className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition-all text-xs font-semibold shadow-lg shadow-blue-500/20"
-              >
+              <button onClick={batchComplete} className="px-4.5 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition-all text-xs font-semibold shadow-lg shadow-blue-500/20">
                 Complete
               </button>
             </div>
@@ -283,63 +265,41 @@ const App: React.FC = () => {
         </div>
       )}
 
-      {/* Alert Overlay */}
-      <div className="fixed top-4 right-4 z-50 flex flex-col gap-2 pointer-events-none">
-        {activeAlerts.map((alert, idx) => (
-          <div 
-            key={idx} 
-            className="pointer-events-auto bg-white border border-blue-100 text-slate-800 px-5 py-3 rounded-2xl shadow-xl animate-in slide-in-from-right duration-300 flex items-center gap-3"
-          >
-            <div className="bg-blue-50 p-1.5 rounded-lg text-blue-600">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
-              </svg>
-            </div>
-            <p className="font-medium text-xs">{alert}</p>
-            <button 
-              onClick={() => setActiveAlerts(prev => prev.filter((_, i) => i !== idx))}
-              className="ml-auto hover:bg-slate-100 rounded p-1 text-slate-400"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
+      {/* App Header inspired by screenshot */}
+      <header className="mb-8 flex flex-col items-center">
+        <div className="mb-6 flex flex-col items-center gap-4">
+           {/* Compact container for icon and actions */}
+          <div className="flex items-center gap-3">
+             <ImportExport tasks={tasks} onImport={handleImport} />
           </div>
-        ))}
-      </div>
-
-      <header className="mb-10 text-center relative">
-        <div className="absolute top-0 right-0">
-          <ImportExport tasks={tasks} onImport={handleImport} />
+          <div className="text-center">
+            <h1 className="text-2xl font-semibold text-slate-800 tracking-tight">Mine Task Manager</h1>
+            <p className="text-slate-400 mt-1 font-medium text-[11px] md:text-xs">Prioritize your success, one task at a time</p>
+          </div>
         </div>
-        
-        <div className="inline-block p-2 bg-blue-50 rounded-2xl mb-4 border border-blue-100">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path d="M12 14l9-5-9-5-9 5 9 5z" />
-            <path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" />
-          </svg>
-        </div>
-        <h1 className="text-2xl font-semibold text-slate-800 tracking-tight">Student Task Manager</h1>
-        <p className="text-slate-500 mt-1 font-medium text-sm">Prioritize your success, one task at a time</p>
       </header>
 
       <AIAssistant onTasksExtracted={addBulkTasks} />
-      <TaskForm onAddTask={addTask} activeTasks={activeTasksForDependency} />
       
-      <TaskFilters 
-        searchTerm={searchTerm} 
-        onSearchChange={setSearchTerm}
-        filterMode={filterMode}
-        onFilterChange={setFilterMode}
-        categories={categories}
-        selectedCategory={selectedCategory}
-        onCategoryChange={setSelectedCategory}
-        selectedPriority={selectedPriority}
-        onPriorityChange={setSelectedPriority}
-        sortMethod={sortMethod}
-        onSortMethodChange={setSortMethod}
-      />
+      <div className="mt-8">
+        <TaskForm onAddTask={addTask} activeTasks={activeTasksForDependency} />
+      </div>
+      
+      <div className="mt-6">
+        <TaskFilters 
+          searchTerm={searchTerm} 
+          onSearchChange={setSearchTerm}
+          filterMode={filterMode}
+          onFilterChange={setFilterMode}
+          categories={categories}
+          selectedCategory={selectedCategory}
+          onCategoryChange={setSelectedCategory}
+          selectedPriority={selectedPriority}
+          onPriorityChange={setSelectedPriority}
+          sortMethod={sortMethod}
+          onSortMethodChange={setSortMethod}
+        />
+      </div>
 
       <section className="space-y-4">
         <div className="flex items-center justify-between">
@@ -347,18 +307,15 @@ const App: React.FC = () => {
           {activeTasks.length > 0 && (
             <button
               onClick={() => selectAllFiltered(visibleIds)}
-              className={`text-[10px] font-semibold uppercase tracking-widest px-3 py-1.5 rounded-lg border transition-all ${
-                isAllVisibleSelected 
-                  ? 'bg-blue-500 text-white border-blue-500' 
-                  : 'text-slate-400 bg-white border-slate-200 hover:border-blue-300'
-              }`}
+              className="text-[10px] font-semibold uppercase tracking-widest px-3 py-1.5 rounded-lg border border-slate-200 text-slate-400 bg-white hover:border-blue-300 transition-all active:scale-95"
             >
-              {isAllVisibleSelected ? 'Deselect All' : 'Select All'}
+              Select All
             </button>
           )}
         </div>
+        
         {activeTasks.length > 0 ? (
-          <div className="grid grid-cols-1 gap-3">
+          <div className="grid grid-cols-1 gap-4">
             {activeTasks.map(task => (
               <TaskItem 
                 key={task.id} 
@@ -372,12 +329,8 @@ const App: React.FC = () => {
             ))}
           </div>
         ) : (
-          <div className="bg-white border border-dashed border-slate-200 rounded-2xl py-10 text-center">
-            <p className="text-slate-400 text-sm font-medium italic">
-              {searchTerm || filterMode !== 'all' || selectedCategory || selectedPriority
-                ? 'No matches.' 
-                : 'No pending tasks.'}
-            </p>
+          <div className="bg-white/50 border border-dashed border-slate-200 rounded-3xl py-12 text-center">
+            <p className="text-slate-400 text-xs font-medium italic">No active tasks found.</p>
           </div>
         )}
       </section>
@@ -385,7 +338,7 @@ const App: React.FC = () => {
       <section className="mt-12 pt-8 border-t border-slate-100">
         <SectionHeader title="History" count={completedTasks.length} />
         {completedTasks.length > 0 ? (
-          <div className="grid grid-cols-1 gap-2">
+          <div className="grid grid-cols-1 gap-3">
             {completedTasks.map(task => (
               <TaskItem 
                 key={task.id} 
@@ -399,12 +352,12 @@ const App: React.FC = () => {
             ))}
           </div>
         ) : (
-          <p className="text-slate-300 text-xs text-center py-4">History is empty.</p>
+          <p className="text-slate-300 text-[10px] text-center py-6 italic">History is empty.</p>
         )}
       </section>
 
-      <footer className="mt-20 text-center text-slate-300 text-[10px] pb-10 uppercase tracking-widest">
-        &copy; {new Date().getFullYear()} Student Task Manager
+      <footer className="mt-20 text-center text-slate-300 text-[9px] pb-10 uppercase tracking-[0.2em] font-medium">
+        &copy; {new Date().getFullYear()} Mine Task Manager
       </footer>
     </div>
   );

@@ -32,6 +32,17 @@ export const TaskFilters: React.FC<TaskFiltersProps> = ({
   sortMethod,
   onSortMethodChange,
 }) => {
+  const getPriorityFilterStyle = (p: Priority, isActive: boolean) => {
+    if (!isActive) return 'bg-white text-slate-300 border-slate-50 hover:border-slate-200';
+    
+    switch(p) {
+      case 'High': return 'bg-red-50 text-red-500 border-red-200 shadow-sm shadow-red-100';
+      case 'Medium': return 'bg-amber-50 text-amber-600 border-amber-200 shadow-sm shadow-amber-100';
+      case 'Low': return 'bg-blue-50 text-blue-500 border-blue-200 shadow-sm shadow-blue-100';
+      default: return 'bg-slate-700 text-white border-slate-700';
+    }
+  };
+
   return (
     <div className="flex flex-col gap-4 mb-8">
       <div className="flex flex-col md:flex-row gap-4 items-center">
@@ -64,44 +75,38 @@ export const TaskFilters: React.FC<TaskFiltersProps> = ({
 
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2">
-          {categories.length > 0 && (
-            <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={() => onCategoryChange(null)}
+              className={`px-3 py-1 rounded-full text-[10px] font-semibold border transition-all ${
+                selectedCategory === null
+                  ? 'bg-blue-500 text-white border-blue-500 shadow-sm shadow-blue-100'
+                  : 'bg-white text-slate-400 border-slate-100 hover:border-blue-200'
+              }`}
+            >
+              All Subjects
+            </button>
+            {categories.map((cat) => (
               <button
-                onClick={() => onCategoryChange(null)}
+                key={cat}
+                onClick={() => onCategoryChange(cat)}
                 className={`px-3 py-1 rounded-full text-[10px] font-semibold border transition-all ${
-                  selectedCategory === null
-                    ? 'bg-slate-700 text-white border-slate-700'
+                  selectedCategory === cat
+                    ? 'bg-blue-100 text-blue-600 border-blue-200'
                     : 'bg-white text-slate-400 border-slate-100 hover:border-blue-200'
                 }`}
               >
-                All Subjects
+                {cat}
               </button>
-              {categories.map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => onCategoryChange(cat)}
-                  className={`px-3 py-1 rounded-full text-[10px] font-semibold border transition-all ${
-                    selectedCategory === cat
-                      ? 'bg-blue-500 text-white border-blue-500'
-                      : 'bg-white text-slate-400 border-slate-100 hover:border-blue-200'
-                  }`}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
-          )}
+            ))}
+          </div>
           
-          <div className="flex items-center gap-1.5 ml-1">
+          <div className="flex items-center gap-1.5 ml-1 border-l border-slate-200 pl-3">
             {(['High', 'Medium', 'Low'] as Priority[]).map((p) => (
               <button
                 key={p}
                 onClick={() => onPriorityChange(selectedPriority === p ? null : p)}
-                className={`px-2 py-0.5 rounded text-[9px] font-bold border tracking-widest transition-all ${
-                  selectedPriority === p
-                    ? 'bg-slate-800 text-white border-slate-800'
-                    : 'bg-white text-slate-300 border-slate-50'
-                }`}
+                className={`px-2 py-0.5 rounded text-[9px] font-semibold border tracking-widest transition-all ${getPriorityFilterStyle(p, selectedPriority === p)}`}
               >
                 {p}
               </button>
@@ -113,7 +118,7 @@ export const TaskFilters: React.FC<TaskFiltersProps> = ({
           <button
             onClick={() => onSortMethodChange('date')}
             className={`px-3 py-1.5 rounded-lg text-[10px] font-semibold transition-all ${
-              sortMethod === 'date' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-400 hover:text-slate-600'
+              sortMethod === 'date' ? 'bg-white text-slate-700 shadow-sm' : 'text-slate-400 hover:text-slate-500'
             }`}
           >
             Due Date
@@ -121,7 +126,7 @@ export const TaskFilters: React.FC<TaskFiltersProps> = ({
           <button
             onClick={() => onSortMethodChange('priority')}
             className={`px-3 py-1.5 rounded-lg text-[10px] font-semibold transition-all ${
-              sortMethod === 'priority' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-400 hover:text-slate-600'
+              sortMethod === 'priority' ? 'bg-white text-slate-700 shadow-sm' : 'text-slate-400 hover:text-slate-500'
             }`}
           >
             Priority

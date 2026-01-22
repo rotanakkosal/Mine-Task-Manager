@@ -1,7 +1,7 @@
 
 import React, { useState, useRef } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
-import { Task, Priority } from '../types.ts';
+import { Task } from '../types.ts';
 
 interface AIAssistantProps {
   onTasksExtracted: (tasks: Omit<Task, 'id' | 'createdAt' | 'isCompleted'>[]) => void;
@@ -68,7 +68,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ onTasksExtracted }) =>
       }
     } catch (err) {
       console.error("AI Analysis Error:", err);
-      setError("Failed to analyze image. Please check your connection and try again.");
+      setError("Failed to analyze image. Please try again.");
     } finally {
       setIsAnalyzing(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -84,43 +84,39 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ onTasksExtracted }) =>
 
   return (
     <div className="mb-8">
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-6 text-white shadow-lg shadow-blue-200">
-        <div className="flex items-start justify-between">
-          <div>
-            <h3 className="text-lg font-bold flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-              </svg>
-              AI Magic Extractor
-            </h3>
-            <p className="text-blue-100 text-sm mt-1 max-w-md">
-              Upload a photo of your syllabus, notes, or whiteboard to automatically generate and categorize your task list.
-            </p>
-          </div>
+      <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-[2rem] p-6 md:p-8 text-white shadow-xl shadow-blue-500/10 flex flex-col md:flex-row items-center gap-6">
+        <div className="flex-grow text-center md:text-left">
+          <h3 className="text-xl font-bold mb-2">AI Magic Extractor</h3>
+          <p className="text-blue-100/90 text-[13px] md:text-sm leading-relaxed max-w-sm mx-auto md:mx-0">
+            Upload a photo of your syllabus, notes, or whiteboard to automatically generate and categorize your task list.
+          </p>
+        </div>
+        
+        <div className="flex-shrink-0">
           <button
             onClick={() => fileInputRef.current?.click()}
             disabled={isAnalyzing}
-            className={`px-5 py-2.5 bg-white text-blue-600 font-bold rounded-xl text-sm shadow-sm hover:bg-blue-50 transition-all flex items-center gap-2 ${isAnalyzing ? 'opacity-50 cursor-not-allowed' : 'active:scale-95'}`}
+            className={`px-6 py-4 bg-white text-blue-600 font-bold rounded-2xl text-[13px] shadow-lg hover:bg-blue-50 transition-all flex flex-col items-center gap-1 min-w-[120px] ${isAnalyzing ? 'opacity-50 cursor-not-allowed' : 'active:scale-95'}`}
           >
             {isAnalyzing ? (
-              <>
+              <div className="flex items-center gap-2">
                 <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                Analyzing...
-              </>
+                <span>Extracting...</span>
+              </div>
             ) : (
               <>
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
-                Upload Photo
+                <span>Upload Photo</span>
               </>
             )}
           </button>
         </div>
+        
         <input
           type="file"
           ref={fileInputRef}
@@ -128,12 +124,12 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ onTasksExtracted }) =>
           accept="image/*"
           className="hidden"
         />
-        {error && (
-          <div className="mt-4 p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-xs font-medium text-white">
-            {error}
-          </div>
-        )}
       </div>
+      {error && (
+        <div className="mt-4 px-4 py-2 bg-red-50 text-red-500 rounded-xl text-xs font-medium border border-red-100 text-center animate-in fade-in duration-300">
+          {error}
+        </div>
+      )}
     </div>
   );
 };
