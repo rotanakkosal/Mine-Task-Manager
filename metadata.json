@@ -1,0 +1,5 @@
+{
+  "name": "Student Task Manager",
+  "description": "A clean, minimalist task management application designed for students, featuring due-date tracking, priority highlighting, and task history.",
+  "requestFramePermissions": []
+}
