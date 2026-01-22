@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Task } from '../types';
+import { Task } from '../types.ts';
 
 interface TaskItemProps {
   task: Task;
@@ -21,7 +21,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task, onComplete }) => {
 
   const statusHighlight = !task.isCompleted && isToday() 
     ? "border-red-400 bg-red-50 ring-2 ring-red-100" 
-    : "border-blue-100 bg-white hover:border-blue-300";
+    : "border-blue-100 bg-white hover:border-blue-300 shadow-sm";
 
   return (
     <div className={`p-5 rounded-2xl border transition-all duration-200 flex items-center justify-between group ${statusHighlight}`}>

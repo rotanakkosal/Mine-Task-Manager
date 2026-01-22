@@ -1,10 +1,10 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Task } from './types';
-import { TaskForm } from './components/TaskForm';
-import { TaskItem } from './components/TaskItem';
-import { SectionHeader } from './components/SectionHeader';
-import { TaskFilters, FilterMode } from './components/TaskFilters';
+import { Task } from './types.ts';
+import { TaskForm } from './components/TaskForm.tsx';
+import { TaskItem } from './components/TaskItem.tsx';
+import { SectionHeader } from './components/SectionHeader.tsx';
+import { TaskFilters, FilterMode } from './components/TaskFilters.tsx';
 
 const STORAGE_KEY = 'student_task_manager_v1';
 
@@ -18,16 +18,31 @@ const App: React.FC = () => {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       try {
-        setTasks(JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          setTasks(parsed);
+        }
       } catch (e) {
         console.error("Failed to load tasks", e);
       }
+    } else {
+      // Create a welcome task if it's the first time
+      const welcomeTask: Task = {
+        id: 'welcome-1',
+        title: 'Welcome to your Task Manager! Add your first assignment above.',
+        dueDate: new Date().toISOString().split('T')[0],
+        isCompleted: false,
+        createdAt: Date.now(),
+      };
+      setTasks([welcomeTask]);
     }
   }, []);
 
   // Save state whenever tasks change
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+    if (tasks.length > 0 || localStorage.getItem(STORAGE_KEY)) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+    }
   }, [tasks]);
 
   const addTask = useCallback((title: string, dueDate: string) => {
@@ -84,7 +99,7 @@ const App: React.FC = () => {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" />
           </svg>
         </div>
-        <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Mine Task Manager</h1>
+        <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Student Task Manager</h1>
         <p className="text-slate-500 mt-2 font-medium">Keep track of your academic success</p>
       </header>
 
@@ -109,8 +124,8 @@ const App: React.FC = () => {
             ))}
           </div>
         ) : (
-          <div className="bg-white/50 border border-dashed border-blue-200 rounded-2xl py-12 text-center">
-            <p className="text-slate-400 italic">
+          <div className="bg-white/70 border border-dashed border-blue-200 rounded-2xl py-12 text-center shadow-sm">
+            <p className="text-slate-500 font-medium italic">
               {searchTerm || filterMode !== 'all' 
                 ? 'No tasks match your filters.' 
                 : 'No pending tasks. Time to relax!'}
@@ -129,7 +144,7 @@ const App: React.FC = () => {
             ))}
           </div>
         ) : (
-          <p className="text-slate-400 text-sm text-center py-4">
+          <p className="text-slate-400 text-sm text-center py-4 italic">
             {searchTerm 
               ? 'No completed tasks match your search.' 
               : 'Completed tasks will appear here.'}
@@ -137,8 +152,8 @@ const App: React.FC = () => {
         )}
       </section>
 
-      <footer className="mt-20 text-center text-slate-400 text-xs">
-        &copy; {new Date().getFullYear()} Mine Task Manager &bull; Focused on Growth
+      <footer className="mt-20 text-center text-slate-400 text-xs pb-10">
+        &copy; {new Date().getFullYear()} Student Task Manager &bull; Focused on Growth
       </footer>
     </div>
   );
